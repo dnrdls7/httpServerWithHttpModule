@@ -45,6 +45,23 @@ const httpRequestListener = function (req, res) {
                 res.end(JSON.stringify({'message' : 'userCreated'}));
             });
 
+        } else if(url === '/posts/add') {
+            let body = "";
+            req.on('data', (data) => {
+                body += data;
+            });
+            req.on('end', () => {
+                const post = JSON.parse(body);
+
+                posts.push({
+                    id: post.id,
+                    title: post.title,
+                    content: post.content,
+                    userId: post.userId
+                });
+                res.writeHead(200, {'Content-Type' : 'application/json'});
+                res.end(JSON.stringify({'message' : posts}));
+            });
         }
     }
     // res.writeHead(200, {'Contest-Type' : 'application/json'});
