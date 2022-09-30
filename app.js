@@ -50,9 +50,9 @@ const httpRequestListener = function (req, res) {
                     };
 
                     body.push({
-                        userID: posts[i].userId,
+                        userId: posts[i].userId,
                         userName: post_username,
-                        postingID: posts[i].id,
+                        postingId: posts[i].id,
                         postingTitle: posts[i].title,
                         postingContent: posts[i].content
                     });
@@ -101,6 +101,52 @@ const httpRequestListener = function (req, res) {
                 res.end(JSON.stringify({'message' : posts}));
             });
         }
+    } else if(method === 'PATCH') {
+        if(url === '/posts/patch') {
+            let body = "";
+            let index = 0;
+            let post_username = "";
+            req.on('data', (data) => {
+                body += data;
+            });
+            req.on('end', () => {
+                const patch = JSON.parse(body);
+                
+                for(let i=0; i<posts.length; i++) {
+                    if(posts[i].id === patch.id) {
+                        index = i;
+
+                        if(patch.title !== undefined) {
+                            posts[i].title = patch.title;
+                        };
+                        if(patch.content !== undefined) {
+                            posts[i].content = patch.content;
+                        };
+                        if(patch.userId !== undefined) {
+                            posts[i].userId = patch.userId;
+                        };
+                    };
+                };
+
+                for(let i=0; i<users.length; i++) {
+                    if(users[i].id === posts[index].userId) {
+                        post_username = users[i].name;
+                    }
+                };
+
+                const success = {
+                    userId: posts[index].userId,
+                    userName: post_username,
+                    postingId: posts[index].id,
+                    postingTitle: posts[index].title,
+                    postingContent: posts[index].content
+                }
+
+            res.writeHead(200, {'Content-Type' : 'application/json'});
+            res.end(JSON.stringify({'data' : success}));
+            // res.end(JSON.stringify({'data' : posts[index]}));
+            });
+        };
     }
     // res.writeHead(200, {'Contest-Type' : 'application/json'});
     // res.end(JSON.stringify({message : 'Hello, World!'}));
