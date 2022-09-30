@@ -147,6 +147,26 @@ const httpRequestListener = function (req, res) {
             // res.end(JSON.stringify({'data' : posts[index]}));
             });
         };
+    } else if(method === 'DELETE') {
+        if(url === '/posts/delete') {
+            let body = "";
+
+            req.on('data', (data) => {
+                body += data;
+            });
+            req.on('end', () => {
+                const postDelete = JSON.parse(body);
+
+                for(let i=0; i<posts.length; i++) {
+                    if(posts[i].id === postDelete.id) {
+                        posts.splice(i,1);
+                    };
+                };
+
+                res.writeHead(200, {'Content-Type' : 'application/json'});
+                res.end(JSON.stringify({'data' : posts}));
+            });
+        };
     }
     // res.writeHead(200, {'Contest-Type' : 'application/json'});
     // res.end(JSON.stringify({message : 'Hello, World!'}));
