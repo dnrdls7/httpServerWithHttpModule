@@ -33,10 +33,11 @@ const posts = [
 
 const httpRequestListener = function (req, res) {
     const { url, method } = req; 
+
     if(method === 'GET') {
         if(url === '/ping') {
             res.writeHead(200, {'Content-Type' : 'application/json'});
-            res.end(JSON.stringify({'message' : 'pong'}))
+            res.end(JSON.stringify({'message' : 'pong'}));
         } else if(url === '/posts/list/all') {
             let body = [];
             
@@ -57,9 +58,44 @@ const httpRequestListener = function (req, res) {
                         postingContent: posts[i].content
                     });
                 };
+
+            res.writeHead(200, {'Content-Type' : 'application/json'});
+            res.end(JSON.stringify({'data' : body}));
+            // res.end(JSON.stringify({'message' : 'postsAllList'}));
+
+        } else if(url === '/posts/list/userid') {
+            let body = '';
+            let userPostList = new Object;
+            userPostList['postings'] = [];
+            
+            req.on('data', (data) => {
+                body += data;
+            });
+            req.on('end', () => {
+                const user = JSON.parse(body);
+
+                for(let i=0; i<users.length; i++) {
+                    if(users[i].id === user.id) {
+                        userPostList['userId'] = users[i].id;
+                        userPostList['userName'] = users[i].name;
+                    };
+                };
+
+                for(let i=0; i<posts.length; i++) {
+                    if(posts[i].userId === user.id) {
+                        let z = {
+                            'postingId' : posts[i].id,
+                            'postingName' : posts[i].name,
+                            'postingContent' : posts[i].content
+                        };
+                        userPostList['postings'].push(z);
+                    }
+                };
+
                 res.writeHead(200, {'Content-Type' : 'application/json'});
-                res.end(JSON.stringify({'data' : body}));
-                // res.end(JSON.stringify({'message' : 'postsAllList'}));
+                res.end(JSON.stringify({'data' : userPostList}));
+            });
+            
 
         }
     } else if(method === 'POST') {
@@ -163,7 +199,7 @@ const httpRequestListener = function (req, res) {
                     };
                 };
 
-                res.writeHead(200, {'Content-Type' : 'application/json'});
+                res.writeHead(204, {'Content-Type' : 'application/json'});
                 res.end(JSON.stringify({'data' : posts}));
             });
         };
